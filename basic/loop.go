@@ -14,7 +14,8 @@ func main(){
   for i:= range arreglo{
     fmt.Printf("Valor de i: %d\n", i)
   }
-
+	
+	/* Estilo C */
   for i:=0 ; i < 10; i++ {
     fmt.Printf("Valor de i: %d", i)
     if i == 7 {
@@ -24,6 +25,7 @@ func main(){
   fmt.Printf("\n")
   }
 
+	/* goto */
   CICLO: for i < 10 {
     if i == 6 {
       i = i + 3
