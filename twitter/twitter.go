@@ -1,61 +1,70 @@
 package main
 
 import (
-	"strconv"
+	"fmt"
+	"github.com/Nicobugliot/7531-TP-Go/twitter/domain"
+	"github.com/Nicobugliot/7531-TP-Go/twitter/repository"
 	"strings"
-	"time"
 )
 
 func main()  {
 	channelToReceive := make(chan string)
 	
 	users := []string {"userA", "userB"}
-	query := "q"
 
-
-	go search(channelToReceive, users, query)
+	go search(channelToReceive, users, containsQuery("paste"))
 
 	go func() {
 		for {
-			print(<- channelToReceive)
+			print(<- channelToReceive + "\n")
 		}
 	}()
 
-	time.Sleep(5 * time.Second)
+	var input string
+	fmt.Scanln(&input)
 }
 
-func search(channelToReceive chan string, users []string, query string) {
+func search(channelToReceive chan string, users []string, apply func(*domain.Tweet) bool) {
 
-	channelToAggFunction := make(chan *Tweet)
+	channelToAggFunction := make(chan *domain.Tweet)
 
-	for i := 0; i < len(users); i++ {
-		user := users[i]
+	for _,user := range users {
 
 		go postTweetsFromUser(channelToAggFunction, user)
-		go aggFunction(channelToReceive, channelToAggFunction)
+		go aggFunction(channelToReceive, channelToAggFunction, apply)
 	}
 	
 }
 
 
-func postTweetsFromUser(channel chan *Tweet, user string) {
-	for i := 0 ; i < 5 ; i++ {
-		tweet := &Tweet{
-			user: user,
-			text: user + strconv.Itoa(i) + "; ",
-		}
+func postTweetsFromUser(channel chan *domain.Tweet, user string) {
+
+	var repo repository.TwitterRepository = repository.NewFileTwitterRepository()
+
+	tweets,err := repo.GetTweetsFromUser(user)
+	if err != nil {
+		panic("Can't retrieve tweets for user " + user)
+	}
+
+	for _,tweet := range tweets {
 		channel <- tweet
 	}
 }
 
-func aggFunction(channelToReceive chan string, channelToAggFunction chan *Tweet)  {
+func aggFunction(channelToReceive chan string, channelToAggFunction chan *domain.Tweet, apply func(*domain.Tweet) bool)  {
 	for {
+		//time.Sleep(1 * time.Second)
 		tweet := <- channelToAggFunction
-		channelToReceive <- strings.ToUpper(tweet.text)
+
+		if apply(tweet) {
+			channelToReceive <- tweet.Text
+		}
+
 	}
 }
 
-type Tweet struct {
-	user string
-	text string
+func containsQuery(query string) func(*domain.Tweet) bool {
+	return func(tweet *domain.Tweet) bool {
+		return strings.Contains(strings.ToLower(tweet.Text), strings.ToLower(query))
+	}
 }
