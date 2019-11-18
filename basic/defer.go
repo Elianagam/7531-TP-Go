@@ -13,8 +13,8 @@ func printAndSayGoodbye(text string) {
 	fmt.Println(text)
 }
 
-func sayFiveTimes(text string, seconds int64){
-	// Que pasa si el codigo del medio rompe y no llega a ejecutar el Done?
+func sayFiveTimes(text string){
+	// Que pasa si el código del medio rompe y no llega a ejecutar el Done?
 	for i:=1; i <= 5; i++ {
 		fmt.Println(text)
 		time.Sleep(100 * time.Millisecond)
@@ -34,13 +34,13 @@ func sayFiveTimesFixed(text string) {
 
 
 func main() {
-	printAndSayGoodbye("Hello")
+	//printAndSayGoodbye("Hello")
 
-	wg.Add(2)
+	wg.Add(3)
 	go sayFiveTimes("One", 1)
 	go sayFiveTimes("Two", 1)
-	go sayFiveTimes("Three", 3)
 
 	wg.Wait()
+	fmt.Println("Terminó!")
 }
 
