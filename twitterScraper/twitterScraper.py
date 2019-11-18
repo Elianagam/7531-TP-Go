@@ -20,11 +20,8 @@ CONSUMER_SECRET = 'sHeBkkGgD05hFNHK2IdcbE17BXXjah6CvAkI21WAq6ta6DDP96'
 ACCESS_TOKEN_KEY = '1273577244-6wUVJKr8LEbSy7ZdeRbNF9GwVfYcrerAzvktJYw'
 ACCESS_TOKEN_SECRET = 'XUX5UJpyyUZoQCpBulPjAgq7PAJbIWheFkjTlEN8zzGcL'
 
-# Cantidad de tweets
-COUNT = 1
 
-
-def get_tweets(api=None, screen_name=None, count=100):
+def get_tweets(api=None, screen_name=None, count=None):
     timeline = api.GetUserTimeline(screen_name=screen_name, count=count)
     for tweet in timeline:
         try:
@@ -41,18 +38,14 @@ def get_tweets(api=None, screen_name=None, count=100):
             pass
 
 
-
-    return timeline
-
-
 def write_csv(list):
-    if not os.path.isfile(f'tweets_{list[1]}.csv'):
+    if not os.path.isfile(f'tweets/tweets_{list[1]}.csv'):
         with open(f'tweets/tweets_{list[1]}.csv', mode='w') as csv_file:
             fieldnames = ['created_at', 'username', 'text', 'likes', 'retweets', 'hashtags']
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
             writer.writeheader()
 
-    with open(f'tweets/tweets_{list[1]}.csv', mode='a') as csv_file:
+    with open(f'tweets/tweets_{list[1]}.csv', mode='a+') as csv_file:
         fieldnames = ['created_at', 'username', 'text', 'likes', 'retweets', 'hashtags']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
