@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Nicobugliot/7531-TP-Go/twitter/domain"
 	"os"
+	"strconv"
 )
 
 type TwitterRepository interface {
@@ -20,7 +21,7 @@ func NewFileTwitterRepository() *FileTwitterRepository {
 	return &FileTwitterRepository{}
 }
 
-const DataPath  = "/Users/akler/go/src/github.com/Nicobugliot/7531-TP-Go/twitter/repository/data/%s.csv"
+const DataPath  = "/Users/akler/go/src/github.com/Nicobugliot/7531-TP-Go/twitterScraper/tweets/tweets_%s.csv"
 
 func (f *FileTwitterRepository) GetTweetsFromUser(user string) ([]*domain.Tweet, error) {
 	path := fmt.Sprintf(DataPath, user)
@@ -40,9 +41,15 @@ func (f *FileTwitterRepository) GetTweetsFromUser(user string) ([]*domain.Tweet,
 	var tweets []*domain.Tweet
 
 	for _,line := range lines  {
+		likes,_ := strconv.Atoi(line[3])
+		retweets,_ := strconv.Atoi(line[4])
+
 		tweets = append(tweets, &domain.Tweet{
+			CreatedAt: line[0],
 			User: user,
-			Text: line[0],
+			Text: line[2],
+			Likes: likes,
+			Retweets: retweets,
 		})
 	}
 

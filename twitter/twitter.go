@@ -1,27 +1,27 @@
 package main
 
 import (
-	"fmt"
 	"github.com/Nicobugliot/7531-TP-Go/twitter/domain"
 	"github.com/Nicobugliot/7531-TP-Go/twitter/repository"
+	"regexp"
 	"strings"
+	"time"
 )
 
 func main()  {
 	channelToReceive := make(chan string)
 	
-	users := []string {"userA", "userB"}
+	users := []string {"alferdez", "mauriciomacri"}
 
-	go search(channelToReceive, users, containsQuery("paste"))
+	go search(channelToReceive, users, containsQuery("muert"))
 
 	go func() {
 		for {
-			print(<- channelToReceive + "\n")
+			print(<- channelToReceive + "\n\n")
 		}
 	}()
 
-	var input string
-	fmt.Scanln(&input)
+	time.Sleep(5 * time.Minute)
 }
 
 func search(channelToReceive chan string, users []string, apply func(*domain.Tweet) bool) {
@@ -47,17 +47,17 @@ func postTweetsFromUser(channel chan *domain.Tweet, user string) {
 	}
 
 	for _,tweet := range tweets {
+		//time.Sleep(30 * time.Millisecond)
 		channel <- tweet
 	}
 }
 
 func aggFunction(channelToReceive chan string, channelToAggFunction chan *domain.Tweet, apply func(*domain.Tweet) bool)  {
 	for {
-		//time.Sleep(1 * time.Second)
 		tweet := <- channelToAggFunction
 
 		if apply(tweet) {
-			channelToReceive <- tweet.Text
+			channelToReceive <- tweet.ToString()
 		}
 
 	}
@@ -67,4 +67,9 @@ func containsQuery(query string) func(*domain.Tweet) bool {
 	return func(tweet *domain.Tweet) bool {
 		return strings.Contains(strings.ToLower(tweet.Text), strings.ToLower(query))
 	}
+}
+
+func containsAnEmoji(tweet *domain.Tweet) bool {
+	var emojiRx = regexp.MustCompile("[\u1000-\uFFFF]+") // TODO encontrar una regex que funcione!
+	return emojiRx.MatchString(tweet.Text)
 }
