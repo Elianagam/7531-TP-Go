@@ -6,6 +6,7 @@ import (
 	"github.com/Nicobugliot/7531-TP-Go/twitter/search"
 	"regexp"
 	"strings"
+	"time"
 )
 
 func main()  {
@@ -23,6 +24,8 @@ func main()  {
 	}
 
 	print(fmt.Sprintf("\n\nTermino --------------- %d \n\n", count))
+
+	time.Sleep(time.Second * 3)
 }
 
 func containsQuery(query string) func(*domain.Tweet) bool {

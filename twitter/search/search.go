@@ -5,40 +5,43 @@ import (
 	"github.com/Nicobugliot/7531-TP-Go/twitter/repository"
 )
 
-func Search(channelToReceive chan string, users []string, apply func(*domain.Tweet) bool) {
+func Search(resultsChannel chan string, users []string, apply func(*domain.Tweet) bool) {
 
 	// Create channel to process tweets
-	channelToAggFunction := make(chan *domain.Tweet) // TODO add buffer
+	processChannel := make(chan *domain.Tweet, 10)
 
-	// Create channel used to know when goroutines have finished
-	quitChannel := make(chan struct{})
+	// Create channels used to know when goroutines have finished
+	quitUsersChannel := make(chan struct{})
+	quitProcessChannel := make(chan struct{})
 
 	// Start process goroutine
-	go processTweets(channelToReceive, channelToAggFunction, apply, quitChannel)
+	go processTweets(resultsChannel, processChannel, apply, quitProcessChannel)
 
-	// Initialize a goroutine for each user
+	// Start a goroutine to get tweets for each user
 	for _,user := range users {
-		go postTweetsFromUser(channelToAggFunction, user, quitChannel)
+		go getTweetsFromUser(processChannel, user, quitUsersChannel)
 	}
 
-	// Wait until all  goroutines finish
-	// This channel will receive a message for each finished
-	// user goroutine and an extra message for process goroutine
-	for range users  {
-		<- quitChannel // wait users goroutines
+	// Wait until all user's goroutines finish
+	// This channel will receive a message for each finished user goroutine
+	for range users {
+		<- quitUsersChannel
 	}
 
 	// We tell to process goroutine that user's goroutine have finish
-	quitChannel <- struct{}{}
+	close(quitProcessChannel)
 
-	// Wait until process goroutine finish
-	<- quitChannel
+	// Wait until process goroutine finish (close his channel)
+	for range quitProcessChannel {}
 
-	close(channelToReceive)
+	close(resultsChannel)
 }
 
 
-func postTweetsFromUser(channel chan *domain.Tweet, user string, quitChannel chan struct{}) {
+func getTweetsFromUser(channel chan *domain.Tweet, user string, quitChannel chan struct{}) {
+	defer func() {
+		quitChannel <- struct{}{} // notify this function has finish
+	}()
 
 	var repo repository.TwitterRepository = repository.NewFileTwitterRepository()
 
@@ -48,35 +51,18 @@ func postTweetsFromUser(channel chan *domain.Tweet, user string, quitChannel cha
 	}
 
 	for _,tweet := range tweets {
-		//time.Sleep(30 * time.Millisecond) Para simular response time de la API
+		//time.Sleep(30 * time.Millisecond) // Para simular response time de la API
 		channel <- tweet
 	}
-
-	// notify this function has finish
-	quitChannel <- struct{}{}
 }
 
-func processTweets(channelToReceive chan string, channelToAggFunction chan *domain.Tweet, apply func(*domain.Tweet) bool, quitChannel chan struct{})  {
-	allGoRoutinesHaveFinish := false
+func processTweets(results chan string, tweetsToProcess chan *domain.Tweet, apply func(*domain.Tweet) bool, quitChannel chan struct{})  {
 
-	for {
-		select {
+	defer close(quitChannel)
 
-		// Will entry when there is a tweet available for process
-		case tweet := <- channelToAggFunction:
-			if apply(tweet) {
-				channelToReceive <- tweet.ToString()
-			}
-
-		// Will entry when all previous routines have finish
-		case <- quitChannel:
-			allGoRoutinesHaveFinish = true
-
-		// Will entry if both cases are blocked
-		default:
-			if allGoRoutinesHaveFinish {
-				quitChannel <- struct{}{}
-			}
+	for tweet := range tweetsToProcess {
+		if apply(tweet) {
+			results <- tweet.ToString()
 		}
 	}
 }
