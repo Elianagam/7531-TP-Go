@@ -1,71 +1,39 @@
 package main
 
 import (
+	"fmt"
 	"github.com/Nicobugliot/7531-TP-Go/twitter/domain"
-	"github.com/Nicobugliot/7531-TP-Go/twitter/repository"
+	"github.com/Nicobugliot/7531-TP-Go/twitter/search"
 	"regexp"
 	"strings"
-	"time"
 )
 
 func main()  {
-	channelToReceive := make(chan string)
-	
 	users := []string {"alferdez", "mauriciomacri"}
 
-	go search(channelToReceive, users, containsQuery("muert"))
+	resultChannel := make(chan string)
 
-	go func() {
-		for {
-			print(<- channelToReceive + "\n\n")
-		}
-	}()
+	go search.Search(resultChannel, users, hasMoreThanNLikes(70000))
 
-	time.Sleep(5 * time.Minute)
-}
+	var count int
 
-func search(channelToReceive chan string, users []string, apply func(*domain.Tweet) bool) {
-
-	channelToAggFunction := make(chan *domain.Tweet)
-
-	for _,user := range users {
-
-		go postTweetsFromUser(channelToAggFunction, user)
-		go aggFunction(channelToReceive, channelToAggFunction, apply)
-	}
-	
-}
-
-
-func postTweetsFromUser(channel chan *domain.Tweet, user string) {
-
-	var repo repository.TwitterRepository = repository.NewFileTwitterRepository()
-
-	tweets,err := repo.GetTweetsFromUser(user)
-	if err != nil {
-		panic("Can't retrieve tweets for user " + user)
+	for message := range resultChannel {
+		print(message + "\n\n")
+		count++
 	}
 
-	for _,tweet := range tweets {
-		//time.Sleep(30 * time.Millisecond)
-		channel <- tweet
-	}
-}
-
-func aggFunction(channelToReceive chan string, channelToAggFunction chan *domain.Tweet, apply func(*domain.Tweet) bool)  {
-	for {
-		tweet := <- channelToAggFunction
-
-		if apply(tweet) {
-			channelToReceive <- tweet.ToString()
-		}
-
-	}
+	print(fmt.Sprintf("\n\nTermino --------------- %d \n\n", count))
 }
 
 func containsQuery(query string) func(*domain.Tweet) bool {
 	return func(tweet *domain.Tweet) bool {
 		return strings.Contains(strings.ToLower(tweet.Text), strings.ToLower(query))
+	}
+}
+
+func hasMoreThanNLikes(likes int) func(*domain.Tweet) bool {
+	return func(tweet *domain.Tweet) bool {
+		return tweet.Likes >= likes
 	}
 }
 
