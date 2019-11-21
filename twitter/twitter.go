@@ -1,46 +1,56 @@
 package main
 
 import (
-	"fmt"
 	"github.com/Nicobugliot/7531-TP-Go/twitter/domain"
 	"github.com/Nicobugliot/7531-TP-Go/twitter/search"
-	"regexp"
-	"strings"
-	"time"
+	"github.com/Nicobugliot/7531-TP-Go/twitter/utils"
+	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func main()  {
+
+	router := gin.Default()
+
+	// Define endpoints
+	router.GET("/tweets/search", searchRouter)
+
+	router.Run()
+}
+
+func searchRouter(c *gin.Context) {
+	query := c.Query("query")
+
+	if query == "" {
+		c.JSON(http.StatusBadRequest, "Param 'query' is mandatory.")
+		return
+	}
+
+	if response,err := searchTweets(query); err != nil {
+		c.JSON(http.StatusInternalServerError, "Error trying to execute search.")
+	}else {
+		c.JSON(http.StatusOK, response)
+	}
+}
+
+func searchTweets(query string) (searchTweetsResponse, error)  {
 	users := []string {"alferdez", "mauriciomacri"}
 
-	resultChannel := make(chan string)
+	resultChannel := make(chan *domain.Tweet)
 
-	go search.Search(resultChannel, users, hasMoreThanNLikes(70000))
+	go search.Search(resultChannel, users, utils.ContainsQuery(query))
 
-	var count int
+	response := searchTweetsResponse{}
 
-	for message := range resultChannel {
-		print(message + "\n\n")
-		count++
+	for tweet := range resultChannel {
+		response.Count++
+		response.Results = append(response.Results, tweet)
 	}
 
-	print(fmt.Sprintf("\n\nTermino --------------- %d \n\n", count))
-
-	time.Sleep(time.Second * 3)
+	return response, nil
 }
 
-func containsQuery(query string) func(*domain.Tweet) bool {
-	return func(tweet *domain.Tweet) bool {
-		return strings.Contains(strings.ToLower(tweet.Text), strings.ToLower(query))
-	}
-}
-
-func hasMoreThanNLikes(likes int) func(*domain.Tweet) bool {
-	return func(tweet *domain.Tweet) bool {
-		return tweet.Likes >= likes
-	}
-}
-
-func containsAnEmoji(tweet *domain.Tweet) bool {
-	var emojiRx = regexp.MustCompile("[\u1000-\uFFFF]+") // TODO encontrar una regex que funcione!
-	return emojiRx.MatchString(tweet.Text)
-}
+type searchTweetsResponse struct {
+	Count   int      `json:"count"`
+	Results []*domain.Tweet `json:"results"`
+} 

@@ -3,11 +3,11 @@ package domain
 import "fmt"
 
 type Tweet struct {
-	CreatedAt string
-	User string
-	Text string
-	Likes int
-	Retweets int
+	CreatedAt string `json:"created_at"`
+	User string `json:"user"`
+	Text string `json:"text"`
+	Likes int `json:"likes"`
+	Retweets int `json:"retweets"`
 }
 
 func (t *Tweet) ToString() string {

@@ -5,7 +5,7 @@ import (
 	"github.com/Nicobugliot/7531-TP-Go/twitter/repository"
 )
 
-func Search(resultsChannel chan string, users []string, apply func(*domain.Tweet) bool) {
+func Search(resultsChannel chan *domain.Tweet, users []string, apply func(*domain.Tweet) bool) {
 
 	// Create channel to process tweets
 	processChannel := make(chan *domain.Tweet, 10)
@@ -29,7 +29,7 @@ func Search(resultsChannel chan string, users []string, apply func(*domain.Tweet
 	}
 
 	// We tell to process goroutine that user's goroutine have finish
-	close(quitProcessChannel)
+	close(processChannel)
 
 	// Wait until process goroutine finish (close his channel)
 	for range quitProcessChannel {}
@@ -56,13 +56,13 @@ func getTweetsFromUser(channel chan *domain.Tweet, user string, quitChannel chan
 	}
 }
 
-func processTweets(results chan string, tweetsToProcess chan *domain.Tweet, apply func(*domain.Tweet) bool, quitChannel chan struct{})  {
+func processTweets(results chan *domain.Tweet, tweetsToProcess chan *domain.Tweet, apply func(*domain.Tweet) bool, quitChannel chan struct{})  {
 
 	defer close(quitChannel)
 
 	for tweet := range tweetsToProcess {
 		if apply(tweet) {
-			results <- tweet.ToString()
+			results <- tweet
 		}
 	}
 }
