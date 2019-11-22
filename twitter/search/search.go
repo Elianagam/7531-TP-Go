@@ -5,7 +5,7 @@ import (
 	"github.com/Nicobugliot/7531-TP-Go/twitter/repository"
 )
 
-func Search(resultsChannel chan *domain.Tweet, users []string, apply func(*domain.Tweet) bool) {
+func Search(resultsChannel chan<- *domain.Tweet, users []string, apply func(*domain.Tweet) bool) {
 
 	// Create channel to process tweets
 	processChannel := make(chan *domain.Tweet, 10)
@@ -38,7 +38,7 @@ func Search(resultsChannel chan *domain.Tweet, users []string, apply func(*domai
 }
 
 
-func getTweetsFromUser(channel chan *domain.Tweet, user string, quitChannel chan struct{}) {
+func getTweetsFromUser(channel chan<- *domain.Tweet, user string, quitChannel chan<- struct{}) {
 	defer func() {
 		quitChannel <- struct{}{} // notify this function has finish
 	}()
@@ -56,7 +56,7 @@ func getTweetsFromUser(channel chan *domain.Tweet, user string, quitChannel chan
 	}
 }
 
-func processTweets(results chan *domain.Tweet, tweetsToProcess chan *domain.Tweet, apply func(*domain.Tweet) bool, quitChannel chan struct{})  {
+func processTweets(results chan<- *domain.Tweet, tweetsToProcess <-chan *domain.Tweet, apply func(*domain.Tweet) bool, quitChannel chan<- struct{}) {
 
 	defer close(quitChannel)
 

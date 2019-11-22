@@ -22,7 +22,7 @@ func searchRouter(c *gin.Context) {
 	query := c.Query("query")
 
 	if query == "" {
-		c.JSON(http.StatusBadRequest, "Param 'query' is mandatory.")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Param 'query' is mandatory."})
 		return
 	}
 
