@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func main()  {
+func main() {
 
 	router := gin.Default()
 
@@ -26,15 +26,15 @@ func searchRouter(c *gin.Context) {
 		return
 	}
 
-	if response,err := searchTweets(query); err != nil {
+	if response, err := searchTweets(query); err != nil {
 		c.JSON(http.StatusInternalServerError, "Error trying to execute search.")
-	}else {
+	} else {
 		c.JSON(http.StatusOK, response)
 	}
 }
 
-func searchTweets(query string) (searchTweetsResponse, error)  {
-	users := []string {"alferdez", "mauriciomacri"}
+func searchTweets(query string) (searchTweetsResponse, error) {
+	users := []string{"alferdez", "mauriciomacri"}
 
 	resultChannel := make(chan *domain.Tweet)
 
@@ -51,6 +51,6 @@ func searchTweets(query string) (searchTweetsResponse, error)  {
 }
 
 type searchTweetsResponse struct {
-	Count   int      `json:"count"`
+	Count   int             `json:"count"`
 	Results []*domain.Tweet `json:"results"`
-} 
+}

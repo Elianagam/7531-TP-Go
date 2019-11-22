@@ -18,14 +18,14 @@ func Search(resultsChannel chan<- *domain.Tweet, users []string, apply func(*dom
 	go processTweets(resultsChannel, processChannel, apply, quitProcessChannel)
 
 	// Start a goroutine to get tweets for each user
-	for _,user := range users {
+	for _, user := range users {
 		go getTweetsFromUser(processChannel, user, quitUsersChannel)
 	}
 
 	// Wait until all user's goroutines finish
 	// This channel will receive a message for each finished user goroutine
 	for range users {
-		<- quitUsersChannel
+		<-quitUsersChannel
 	}
 
 	// We tell to process goroutine that user's goroutine have finish
@@ -37,7 +37,6 @@ func Search(resultsChannel chan<- *domain.Tweet, users []string, apply func(*dom
 	close(resultsChannel)
 }
 
-
 func getTweetsFromUser(channel chan<- *domain.Tweet, user string, quitChannel chan<- struct{}) {
 	defer func() {
 		quitChannel <- struct{}{} // notify this function has finish
@@ -45,12 +44,12 @@ func getTweetsFromUser(channel chan<- *domain.Tweet, user string, quitChannel ch
 
 	var repo repository.TwitterRepository = repository.NewFileTwitterRepository()
 
-	tweets,err := repo.GetTweetsFromUser(user)
+	tweets, err := repo.GetTweetsFromUser(user)
 	if err != nil {
 		panic("Can't retrieve tweets for user " + user)
 	}
 
-	for _,tweet := range tweets {
+	for _, tweet := range tweets {
 		//time.Sleep(30 * time.Millisecond) // Para simular response time de la API
 		channel <- tweet
 	}

@@ -4,10 +4,10 @@ import "fmt"
 
 type Tweet struct {
 	CreatedAt string `json:"created_at"`
-	User string `json:"user"`
-	Text string `json:"text"`
-	Likes int `json:"likes"`
-	Retweets int `json:"retweets"`
+	User      string `json:"user"`
+	Text      string `json:"text"`
+	Likes     int    `json:"likes"`
+	Retweets  int    `json:"retweets"`
 }
 
 func (t *Tweet) ToString() string {
