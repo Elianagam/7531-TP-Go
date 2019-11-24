@@ -8,9 +8,14 @@ import (
 	"strconv"
 )
 
+// Interface
+
 type TwitterRepository interface {
 	GetTweetsFromUser(user string) ([]*domain.Tweet, error)
 }
+
+
+// Implementations
 
 type FileTwitterRepository struct {}
 
