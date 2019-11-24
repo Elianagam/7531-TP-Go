@@ -26,9 +26,12 @@ func main() {
 		fmt.Println("Arranqué a leer")
 		for i := 0; i < 10; i++ {
 			fmt.Println("Leí", <-c)
+			fmt.Println("Sigo")
 		}
 		quit <- 0
 	}()
+
+	time.Sleep(time.Second * 3)
 
 	fibonacci(c, quit)
 }
