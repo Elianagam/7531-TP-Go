@@ -6,41 +6,34 @@ import (
 	"time"
 )
 
-var wg sync.WaitGroup
-
-func printAndSayGoodbye(text string) {
-	defer fmt.Println("Goodbye")
-	fmt.Println(text)
-}
-
-func sayFiveTimes(text string){
-	// Que pasa si el código del medio rompe y no llega a ejecutar el Done?
+func sayFiveTimes(text string, duration time.Duration, group *sync.WaitGroup){
 	for i:=1; i <= 5; i++ {
 		fmt.Println(text)
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(duration * time.Millisecond)
 	}
 	wg.Done()
 }
 
-func sayFiveTimesFixed(text string) {
+func sayFiveTimesFixed(text string, duration time.Duration, group *sync.WaitGroup) {
 	defer wg.Done()
+	defer fmt.Println("Terminé")
 
 	for i:=0; i <= 5; i++ {
 		fmt.Println(text)
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(duration * time.Millisecond)
 	}
 
 }
 
 
 func main() {
-	//printAndSayGoodbye("Hello")
+	wg := &sync.WaitGroup{}
 
-	wg.Add(3)
-	go sayFiveTimes("One", 1)
-	go sayFiveTimes("Two", 1)
+	wg.Add(2)
+	go sayFiveTimesFixed("One", 100, wg)
+	go sayFiveTimesFixed("Two", 300, wg)
 
 	wg.Wait()
-	fmt.Println("Terminó!")
+	//fmt.Println("Terminó!")
 }
 

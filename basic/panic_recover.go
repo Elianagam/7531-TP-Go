@@ -12,6 +12,8 @@ func catchErr() {
 	if r := recover(); r != nil {
 		fmt.Println("Agarré el error: ", r)
 	}
+
+	fmt.Println("Sigo el código..")
 }
 
 func isPrime(value int) bool {
@@ -26,7 +28,6 @@ func isPrime(value int) bool {
 func cantBePrime() {
 	defer wg.Done()
 	defer catchErr()
-
 
 	for i := 1; i <= 5; i++ {
 		if isPrime(i) {
