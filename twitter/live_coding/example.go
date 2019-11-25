@@ -38,7 +38,7 @@ func Search(resultChannel chan string, users []string, query string) {
 
 
 
-func getTweetsFromUser(channelToSendTweets chan *domain.Tweet, user string) {
+func getTweetsFromUser(processChannel chan *domain.Tweet, user string) {
 
 	var repo repository.TwitterRepository = repository.NewFileTwitterRepository()
 
