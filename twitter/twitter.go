@@ -21,7 +21,7 @@ func main() {
 
 func searchByUserRouter(c *gin.Context) {
 	user := c.Param("userId")
-	if !isUserAllowed(user){
+	if !isUserAllowed(user) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or not allowed user id."})
 		return
 	}
@@ -33,7 +33,7 @@ func searchRouter(c *gin.Context) {
 	searchRouterCommon(c, getAllowedUsers())
 }
 
-func searchRouterCommon(c *gin.Context, users []string)  {
+func searchRouterCommon(c *gin.Context, users []string) {
 	query := c.Query("query")
 
 	if query == "" {
@@ -74,7 +74,7 @@ func getAllowedUsers() []string {
 }
 
 func isUserAllowed(userId string) bool {
-	for _,user := range getAllowedUsers() {
+	for _, user := range getAllowedUsers() {
 		if userId == user {
 			return true
 		}
