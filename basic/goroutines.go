@@ -2,7 +2,7 @@ package main
 
 import (
     "fmt"
-   // "time"
+    "time"
 )
 
 func f(from string) {
@@ -14,16 +14,16 @@ func f(from string) {
 func main() {
     f("direct")
 
-    go f("goroutine1")  
+    go f("goroutine1")
 
     // funcion anonima 
     go func(msg string) {
         fmt.Println(msg)
     }("going")
 
-    go f("goroutine2") 
+    go f("goroutine2")
 
-    //time.Sleep(time.Second)
+    time.Sleep(time.Second)
     fmt.Println("done")
 }
 
