@@ -7,6 +7,8 @@ import (
 
 func Search(resultsChannel chan<- *domain.Tweet, users []string, apply func(*domain.Tweet) bool) {
 
+	defer close(resultsChannel)
+
 	// Create channel to process tweets
 	processChannel := make(chan *domain.Tweet, 10)
 
@@ -33,8 +35,6 @@ func Search(resultsChannel chan<- *domain.Tweet, users []string, apply func(*dom
 
 	// Wait until process goroutine finish (close his channel)
 	for range quitProcessChannel {}
-
-	close(resultsChannel)
 }
 
 func getTweetsFromUser(channel chan<- *domain.Tweet, user string, quitChannel chan<- struct{}) {

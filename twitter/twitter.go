@@ -14,11 +14,26 @@ func main() {
 
 	// Define endpoints
 	router.GET("/tweets/search", searchRouter)
+	router.GET("/tweets/search/:userId", searchByUserRouter)
 
 	router.Run()
 }
 
+func searchByUserRouter(c *gin.Context) {
+	user := c.Param("userId")
+	if !isUserAllowed(user) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or not allowed user id."})
+		return
+	}
+
+	searchRouterCommon(c, []string{user})
+}
+
 func searchRouter(c *gin.Context) {
+	searchRouterCommon(c, getAllowedUsers())
+}
+
+func searchRouterCommon(c *gin.Context, users []string) {
 	query := c.Query("query")
 
 	if query == "" {
@@ -26,15 +41,14 @@ func searchRouter(c *gin.Context) {
 		return
 	}
 
-	if response, err := searchTweets(query); err != nil {
+	if response, err := searchTweets(query, users); err != nil {
 		c.JSON(http.StatusInternalServerError, "Error trying to execute search.")
 	} else {
 		c.JSON(http.StatusOK, response)
 	}
 }
 
-func searchTweets(query string) (searchTweetsResponse, error) {
-	users := []string{"alferdez", "mauriciomacri"}
+func searchTweets(query string, users []string) (searchTweetsResponse, error) {
 
 	resultChannel := make(chan *domain.Tweet)
 
@@ -53,4 +67,17 @@ func searchTweets(query string) (searchTweetsResponse, error) {
 type searchTweetsResponse struct {
 	Count   int             `json:"count"`
 	Results []*domain.Tweet `json:"results"`
+}
+
+func getAllowedUsers() []string {
+	return []string{"alferdez", "mauriciomacri", "jlespert", "NicolasdelCano", "juanjomalvinas"}
+}
+
+func isUserAllowed(userId string) bool {
+	for _, user := range getAllowedUsers() {
+		if userId == user {
+			return true
+		}
+	}
+	return false
 }
