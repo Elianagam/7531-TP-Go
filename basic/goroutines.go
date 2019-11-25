@@ -5,25 +5,29 @@ import (
     "time"
 )
 
-func saludar(nombres []string) {
-    for _, nombre := range nombres {
-        fmt.Printf("Hola %s\n", nombre)
-        time.Sleep(1 * time.Second)
-    }
-}
-
-func despedir(nombres []string) {
-    for _, nombre := range nombres {
-        fmt.Printf("Adios %s\n", nombre)
-        time.Sleep(1 * time.Second)
+func f(from string) {
+    for i := 0; i < 3; i++ {
+        fmt.Println(from, ":", i)
     }
 }
 
 func main() {
-    nombres := []string{"Ana", "Barby", "Carlos", "Dario", "Eli"}
-    go saludar(nombres)
-    go despedir(nombres)
+    f("direct")
 
-    var s string
-    fmt.Scan(&s)
+    go f("goroutine1")
+
+    // funcion anonima 
+    go func(msg string) {
+        fmt.Println(msg)
+    }("going")
+
+    go f("goroutine2")
+
+    time.Sleep(time.Second)
+    fmt.Println("done")
 }
+
+
+
+
+
