@@ -2,34 +2,55 @@ package main
 
 import (
 	"github.com/Nicobugliot/7531-TP-Go/twitter/domain"
+	"github.com/Nicobugliot/7531-TP-Go/twitter/repository"
+	"time"
 )
 
 func main()  {
 
-	//users := []string{"alferdez", "mauriciomacri"}
+	users := []string{"alferdez", "mauriciomacri"}
+	query := "kir"
 
+	resultChannel := make(chan string)
 
+	go Search(resultChannel, users, query)
 
-	// TODO Realizar la búsqueda
+	go func() {
+		for tweet := range resultChannel {
+			print(tweet + "\n\n")
+		}
+	}()
 
+	time.Sleep(5 * time.Second)
+}
 
-	// TODO Imprimir resultados
+func Search(resultChannel chan string, users []string, query string) {
 
+	processChannel := make(chan *domain.Tweet)
 
+	for _,user := range users {
+		go getTweetsFromUser(processChannel, user)
+	}
+
+	go processTweets(resultChannel, processChannel, query)
 
 }
 
 
 
-func getTweetsFromUser(channel chan *domain.Tweet, user string) {
+func getTweetsFromUser(channelToSendTweets chan *domain.Tweet, user string) {
 
-	// TODO instanciar repositorio
+	var repo repository.TwitterRepository = repository.NewFileTwitterRepository()
 
-	// TODO Obtener los tweets del usuario
+	tweets, err := repo.GetTweetsFromUser(user)
+	if err != nil {
+		panic("Error retrieving tweets")
+	}
 
-	// TODO Enviar tweets
+	// TODO Send tweets
 }
 
 func processTweets(resultChannel chan string, tweetsToProcess chan *domain.Tweet, query string)  {
-	// TODO procesar
+	// TODO process tweets
+
 }
