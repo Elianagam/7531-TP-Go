@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/Nicobugliot/7531-TP-Go/twitter/domain"
 	"github.com/Nicobugliot/7531-TP-Go/twitter/repository"
+	"strings"
 	"time"
 )
 
@@ -47,10 +48,17 @@ func getTweetsFromUser(processChannel chan *domain.Tweet, user string) {
 		panic("Error retrieving tweets")
 	}
 
-	// TODO Send tweets
+	for _,tweet := range tweets {
+		processChannel <- tweet
+	}
 }
 
 func processTweets(resultChannel chan string, tweetsToProcess chan *domain.Tweet, query string)  {
-	// TODO process tweets
+
+	for tweet := range tweetsToProcess {
+		if strings.Contains(tweet.Text, query) {
+			resultChannel <- tweet.ToString()
+		}
+	}
 
 }

@@ -1,6 +1,8 @@
 ### 7531-TP-Go
 
 # API de Búsqueda de tweets de los candidatos presidenciales 2019
+Editar la constante UserPathToRepo en `twitter/repository/twitter_repository.go` con la ruta correspondiente en tu computadora.
+
 Correr ejecutando `go run twitter/twitter.go`
 
 ## Buscar en todos los tweets

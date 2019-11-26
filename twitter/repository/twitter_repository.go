@@ -23,7 +23,10 @@ func NewFileTwitterRepository() *FileTwitterRepository {
 	return &FileTwitterRepository{}
 }
 
-const DataPath = "/Users/akler/go/src/github.com/Nicobugliot/7531-TP-Go/twitterScraperGo/Tweets/tweets_%s.csv"
+// Change this const with the location of the repository in your computer
+const UserPathToRepo = "/Users/akler/go/src/github.com/Nicobugliot/7531-TP-Go/"
+
+const DataPath = UserPathToRepo + "twitterScraperGo/Tweets/tweets_%s.csv"
 
 func (f *FileTwitterRepository) GetTweetsFromUser(user string) ([]*domain.Tweet, error) {
 	path := fmt.Sprintf(DataPath, user)
