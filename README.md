@@ -3,10 +3,10 @@
 # API de Búsqueda de tweets de los candidatos presidenciales 2019
 Correr ejecutando `go run twitter/twitter.go`
 
-## Búscar en todos los tweets
+## Buscar en todos los tweets
 *GET* `localhost:8080/tweets/search?query=chanta`
 
-## Búscar en todos los tweets de un candidato
+## Buscar en todos los tweets de un candidato
 *GET* `localhost:8080/tweets/search/:userId?query=chanta`
 
 Candidatos disponibles: "alferdez", "mauriciomacri", "jlespert", "NicolasdelCano", "juanjomalvinas".
